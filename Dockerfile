@@ -27,4 +27,6 @@ RUN rm devkitpro-keyring.pkg.tar.xz
 RUN pacman -Syu --noconfirm
 RUN pacman -Sy --noconfirm switch-dev
 
+RUN make
+
 ENTRYPOINT ["sh"]

@@ -1,18 +1,52 @@
-name: Docker Image CI
+name: Build SMO Mod
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  release:
+    types: [created]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag smo-mod:latest
+    
+    - name: Extract build artifacts
+      run: |
+        docker create --name temp-container smo-mod:latest
+        docker cp temp-container:/output/. ./build-output/
+        docker rm temp-container
+    
+    - name: List extracted files
+      run: |
+        echo "Build artifacts:"
+        ls -la build-output/
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: smo-mod-${{ github.sha }}
+        path: build-output/
+        retention-days: 30
+    
+    - name: Create Release Assets
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          build-output/subsdk9
+          build-output/main.npdm
+          build-output/subsdk9.elf
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

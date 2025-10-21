@@ -5,6 +5,13 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
+# Ensure git is installed, then initialize and update submodules
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/* && \
+    git config --global --add safe.directory /app && \
+    git submodule update --init --recursive
+
 # Build the mod
 RUN make
 
@@ -15,8 +22,6 @@ RUN find /app -name "*.nso" -o -name "*.elf" -o -name "main.npdm" -o -name "subs
 FROM alpine:latest
 WORKDIR /output
 
-# Copy specific known files
-COPY --from=builder /app/build/subsdk9 /output/
-COPY --from=builder /app/build/main.npdm /output/
+COPY --from=builder /app/build /output/
 
 ENTRYPOINT ["sh"]

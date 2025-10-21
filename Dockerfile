@@ -1,16 +1,18 @@
-FROM devkitpro/devkita64:latest
+FROM devkitpro/devkita64:latest AS builder
 
 WORKDIR /app
-
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y \
-      make \
-      git && \
-    rm -rf /var/lib/apt/lists/*
 
 # Copy project files
 COPY . .
 
-# Set make as the entrypoint so users can pass targets as arguments
-ENTRYPOINT ["make"]
+# Build the mod
+RUN make
+
+# Second stage - just copy the compiled output
+FROM alpine:latest
+WORKDIR /output
+COPY --from=builder /app/atmosphere /output/atmosphere
+COPY --from=builder /app/*.nso /output/ 2>/dev/null || :
+COPY --from=builder /app/*.elf /output/ 2>/dev/null || :
+
+ENTRYPOINT ["sh"]

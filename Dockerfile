@@ -2,35 +2,34 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# avoid errors/configuration issues while installing other packages
-ARG TZ=Europe/Paris
-ENV LANG=fr_FR.UTF-8
 ENV DEVKITPRO=/opt/devkitpro
 ENV DEVKITARM=/opt/devkitpro/devkitARM
-ENV PATH=/opt/devkitpro/tools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/opt/devkitpro/tools/bin:$PATH
 
-RUN apk update
-RUN apk upgrade
-RUN apk add --no-cache tzdata pacman wget make cmake
+# Install base packages
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache \
+        bash \
+        curl \
+        git \
+        make \
+        cmake \
+        zip \
+        unzip \
+        tar \
+        xz
 
-RUN echo -e "[dkp-libs]\nSigLevel = Optional TrustAll\nServer = https://pkg.devkitpro.org/packages" >> /etc/pacman.conf
-RUN echo -e "[dkp-linux-musl]\nSigLevel = Optional TrustAll\nServer = https://pkg.devkitpro.org/packages/linux-musl/\$arch/" >> /etc/pacman.conf
+# Download and extract devkitARM manually
+# Note: You may need to download from an alternative source or use wget with proper headers
+RUN mkdir -p /opt/devkitpro && \
+    cd /opt/devkitpro && \
+    curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb -o /tmp/devkitpro-pacman.deb
 
-RUN pacman-key --init
-RUN pacman-key --recv BC26F752D25B92CE272E0F44F7FD5492264BB9D0 --keyserver keyserver.ubuntu.com
-RUN pacman-key --lsign BC26F752D25B92CE272E0F44F7FD5492264BB9D0
-RUN wget -S https://pkg.devkitpro.org/devkitpro-keyring.pkg.tar.xz
-RUN pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz
-RUN pacman-key --populate devkitpro
-RUN rm devkitpro-keyring.pkg.tar.xz
-
-RUN pacman -Syu --noconfirm
-RUN pacman -Sy --noconfirm switch-dev
-
-# Copy project files into the container
+# Copy project files
 COPY . .
 
-# Now make will find the Makefile
+# Build the project
 RUN make
 
 ENTRYPOINT ["sh"]

@@ -27,6 +27,10 @@ RUN rm devkitpro-keyring.pkg.tar.xz
 RUN pacman -Syu --noconfirm
 RUN pacman -Sy --noconfirm switch-dev
 
+# Copy project files into the container
+COPY . .
+
+# Now make will find the Makefile
 RUN make
 
 ENTRYPOINT ["sh"]

@@ -2,26 +2,21 @@ FROM devkitpro/devkita64:latest AS builder
 
 WORKDIR /app
 
-# Copy all files including .git directory
+# Copy project files
 COPY . .
-
-# Install git if not present and init submodules
-RUN apt-get update && \
-    apt-get install -y git && \
-    rm -rf /var/lib/apt/lists/* && \
-    git config --global --add safe.directory /app && \
-    git submodule update --init --recursive
 
 # Build the mod
 RUN make
 
-# Second stage - just copy the compiled output
+# List what was built (for debugging)
+RUN find /app -name "*.nso" -o -name "*.elf" -o -name "main.npdm" -o -name "subsdk9"
+
+# Second stage
 FROM alpine:latest
 WORKDIR /output
-COPY --from=builder /app/atmosphere /output/atmosphere
-COPY --from=builder /app/build/*.nso /output/ 2>/dev/null || :
-COPY --from=builder /app/build/*.elf /output/ 2>/dev/null || :
-COPY --from=builder /app/*.nso /output/ 2>/dev/null || :
-COPY --from=builder /app/*.elf /output/ 2>/dev/null || :
+
+# Copy specific known files
+COPY --from=builder /app/build/subsdk9 /output/
+COPY --from=builder /app/build/main.npdm /output/
 
 ENTRYPOINT ["sh"]

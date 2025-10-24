@@ -1,13 +1,17 @@
 #include <exlaunch.hpp>
 
-#include "Library/Bgm/BgmLineFunction.h"
+#include "al/Library/Bgm/BgmLineFunction.h"
+#include "al/Project/Scene/SceneInitInfo.h"
+#include "Scene/StageScene.h"
+
 HOOK_DEFINE_TRAMPOLINE(StageSceneInitHook) {
-        static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {
-              if (al::isPlayingBgm(stageScene)) {
-                  al::stopAllBgm(stageScene, 0);
-               }
-           Orig(stageScene, info);
+    static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {
+        if (al::isPlayingBgm(stageScene)) {
+            al::stopAllBgm(stageScene, 0);
         }
+        Orig(stageScene, info);
+    }
+};
 
 extern "C" void exl_main(void* x0, void* x1) {
     /* Setup hooking environment. */

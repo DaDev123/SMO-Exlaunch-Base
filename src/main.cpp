@@ -1,5 +1,7 @@
 #include <exlaunch.hpp>
 
+#include "Library/Bgm/BgmLineFunction.h"
+
 if (al::isPlayingBgm(stageScene)) {
             al::stopAllBgm(stageScene, 0);
 }

@@ -1,7 +1,7 @@
 #include <exlaunch.hpp>
 
-#include "al/Library/Bgm/BgmLineFunction.h"
-#include "al/Project/Scene/SceneInitInfo.h"
+#include "Library/Bgm/BgmLineFunction.h"
+#include "Project/Scene/SceneInitInfo.h"
 #include "Scene/StageScene.h"
 
 HOOK_DEFINE_TRAMPOLINE(StageSceneInitHook) {

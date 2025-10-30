@@ -1,8 +1,8 @@
 #pragma once
 
+#include "types.h"
 #include <string>
 #include <cstring>
-#include "types.h"
 #include "nn.h"
 #include <basis/seadNew.h>
 

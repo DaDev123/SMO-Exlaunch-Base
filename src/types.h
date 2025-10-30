@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "sead/prim/seadSafeString.h"
+#include <prim/seadSafeString.h>
 
 typedef unsigned char       u8;
 typedef unsigned short      u16;

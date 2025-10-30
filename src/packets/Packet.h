@@ -1,9 +1,9 @@
 #pragma once
 
-#include "sead/math/seadVector.h"
-#include "sead/math/seadQuat.h"
+#include <math/seadVector.h>
+#include <math/seadQuat.h>
 
-#include "nn/account.h"
+#include <nn/account.h>
 
 #include "types.h"
 

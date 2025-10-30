@@ -6,6 +6,13 @@
 #include "nn.h"
 #include <basis/seadNew.h>
 
+enum class SocketLogState : u8 {
+    UNINITIALIZED = 0,
+    CONNECTED = 1,
+    UNAVAILABLE = 2,
+    DISCONNECTED = 3
+};
+
 class SocketBase {
 
     public:

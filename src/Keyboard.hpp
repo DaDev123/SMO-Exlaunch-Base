@@ -4,7 +4,7 @@
 #include "Library/Thread/AsyncFunctorThread.h"
 #include "Library/Thread/FunctorV0M.h"
 
-#include "NintendoSDK/nn/swkbd/swkbd.h"
+#include <nn/swkbd/swkbd.h>
 
 typedef void (*KeyboardSetup)(nn::swkbd::KeyboardConfig&);
 

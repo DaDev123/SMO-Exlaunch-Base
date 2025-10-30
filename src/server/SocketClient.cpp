@@ -4,13 +4,12 @@
 #include <basis/seadNew.h>
 
 #include "server/SocketBase.hpp"
-#include "al/async/FunctorV0M.hpp"
-#include "logger.hpp"
-#include "nn/result.h"
-#include "nn/socket.h"
+#include "Library/Thread/FunctorV0M.h"
+#include <vapours/results.hpp>
+#include <nn/socket.h>
 #include "packets/Packet.h"
 #include "server/Client.hpp"
-#include "thread/seadMessageQueue.h"
+#include <thread/seadMessageQueue.h>
 #include "types.h"
 
 SocketClient::SocketClient(const char* name, sead::Heap* heap) : mHeap(heap), SocketBase(name) {
@@ -30,7 +29,7 @@ nn::Result SocketClient::init(const char* ip, u16 port) {
     in_addr  hostAddress   = { 0 };
     sockaddr serverAddress = { 0 };
 
-    Logger::log("SocketClient::init: %s:%d sock %s\n", ip, port, getStateChar());
+    //Logger::log("SocketClient::init: %s:%d sock %s\n", ip, port, getStateChar());
 
     nn::nifm::Initialize();
     nn::nifm::SubmitNetworkRequest();
@@ -40,7 +39,7 @@ nn::Result SocketClient::init(const char* ip, u16 port) {
     // emulators (ryujinx) make this return false always, so skip it during init
     #ifndef EMU
     if (!nn::nifm::IsNetworkAvailable()) {
-        Logger::log("Network Unavailable.\n");
+        //Logger::log("Network Unavailable.\n");
         this->socket_log_state = SOCKET_LOG_UNAVAILABLE;
         this->socket_errno = nn::socket::GetLastErrno();
         return -1;
@@ -48,14 +47,14 @@ nn::Result SocketClient::init(const char* ip, u16 port) {
     #endif
 
     if ((this->socket_log_socket = nn::socket::Socket(2, 1, 6)) < 0) {
-        Logger::log("Socket Unavailable.\n");
+        //Logger::log("Socket Unavailable.\n");
         this->socket_errno = nn::socket::GetLastErrno();
         this->socket_log_state = SOCKET_LOG_UNAVAILABLE;
         return -1;
     }
 
     if (! this->stringToIPAddress(this->sock_ip, &hostAddress)) {
-        Logger::log("IP address is invalid or hostname not resolveable.\n");
+        //Logger::log("IP address is invalid or hostname not resolveable.\n");
         this->socket_errno = nn::socket::GetLastErrno();
         this->socket_log_state = SOCKET_LOG_UNAVAILABLE;
         return -1;
@@ -72,7 +71,7 @@ nn::Result SocketClient::init(const char* ip, u16 port) {
     nn::Result result;
     
     if((result = nn::socket::Connect(this->socket_log_socket, &serverAddress, sizeof(serverAddress))).isFailure()) {
-        Logger::log("Socket Connection Failed!\n");
+        //Logger::log("Socket Connection Failed!\n");
         this->socket_errno = nn::socket::GetLastErrno();
         this->socket_log_state = SOCKET_LOG_UNAVAILABLE;
         return result;
@@ -80,7 +79,7 @@ nn::Result SocketClient::init(const char* ip, u16 port) {
 
     this->socket_log_state = SOCKET_LOG_CONNECTED;
 
-    Logger::log("Socket fd: %d\n", socket_log_socket);
+    //Logger::log("Socket fd: %d\n", socket_log_socket);
 
     startThreads();  // start recv and send threads after sucessful connection
 
@@ -115,7 +114,7 @@ bool SocketClient::send(Packet *packet) {
     if ((valread = nn::socket::Send(this->socket_log_socket, buffer, packet->mPacketSize + sizeof(Packet), 0) > 0)) {
         return true;
     } else {
-        Logger::log("Failed to Fully Send Packet! Result: %d Type: %s Packet Size: %d\n", valread, packetNames[packet->mType], packet->mPacketSize);
+        //Logger::log("Failed to Fully Send Packet! Result: %d Type: %s Packet Size: %d\n", valread, packetNames[packet->mType], packet->mPacketSize);
         this->socket_errno = nn::socket::GetLastErrno();
         this->tryReconnect();
         return false;
@@ -126,7 +125,7 @@ bool SocketClient::send(Packet *packet) {
 bool SocketClient::recv() {
 
     if (this->socket_log_state != SOCKET_LOG_CONNECTED) {
-        Logger::log("Unable To Receive! Socket Not Connected.\n");
+        //Logger::log("Unable To Receive! Socket Not Connected.\n");
         this->socket_errno = nn::socket::GetLastErrno();
         return this->tryReconnect();
     }
@@ -148,7 +147,7 @@ bool SocketClient::recv() {
             if(this->socket_errno==11){
                 return true;
             } else {
-                Logger::log("Header Read Failed! Value: %d Total Read: %d\n", result, valread);
+                //Logger::log("Header Read Failed! Value: %d Total Read: %d\n", result, valread);
                 return this->tryReconnect(); // if we sucessfully reconnect, we dont want 
             }
         }
@@ -179,7 +178,7 @@ bool SocketClient::recv() {
                         valread += result;
                     } else {
                         free(packetBuf);
-                        Logger::log("Packet Read Failed! Value: %d\nPacket Size: %d\nPacket Type: %s\n", result, header->mPacketSize, packetNames[header->mType]);
+                        //Logger::log("Packet Read Failed! Value: %d\nPacket Size: %d\nPacket Type: %s\n", result, header->mPacketSize, packetNames[header->mType]);
                         return this->tryReconnect();
                     }
                 }
@@ -193,12 +192,12 @@ bool SocketClient::recv() {
                 }
             }
         } else {
-            Logger::log("Failed to aquire valid data! Packet Type: %d Full Packet Size %d valread size: %d", header->mType, fullSize, valread);
+            //Logger::log("Failed to aquire valid data! Packet Type: %d Full Packet Size %d valread size: %d", header->mType, fullSize, valread);
         }
         
         return true;
     } else {  // if we error'd, close the socket
-        Logger::log("valread was zero! Disconnecting.\n");
+        //Logger::log("valread was zero! Disconnecting.\n");
         this->socket_errno = nn::socket::GetLastErrno();
         return this->tryReconnect();
     }
@@ -206,11 +205,11 @@ bool SocketClient::recv() {
 
 bool SocketClient::tryReconnect() {
 
-    Logger::log("Attempting to Reconnect.\n");
+    //Logger::log("Attempting to Reconnect.\n");
 
     if (closeSocket()) { // unfortunately we cannot use the same fd from the previous connection, so close the socket entirely and attempt a new connection.
         if (init(sock_ip, port).isSuccess()) { // call init again
-            Logger::log("Reconnect Successful.\n");
+            //Logger::log("Reconnect Successful.\n");
             return true;
         }
     }
@@ -220,12 +219,12 @@ bool SocketClient::tryReconnect() {
 
 bool SocketClient::closeSocket() {
 
-    Logger::log("Closing Socket.\n");
+    //Logger::log("Closing Socket.\n");
 
     bool result = false;
 
     if (!(result = SocketBase::closeSocket())) {
-        Logger::log("Failed to close socket!\n");
+        //Logger::log("Failed to close socket!\n");
     }
 
     return result;
@@ -259,16 +258,16 @@ bool SocketClient::stringToIPAddress(const char* str, in_addr* out) {
  */
 bool SocketClient::startThreads() {
 
-    Logger::log("Recv Thread isDone: %s\n", BTOC(this->mRecvThread->isDone()));
-    Logger::log("Send Thread isDone: %s\n", BTOC(this->mSendThread->isDone()));
+    //Logger::log("Recv Thread isDone: %s\n", BTOC(this->mRecvThread->isDone()));
+    //Logger::log("Send Thread isDone: %s\n", BTOC(this->mSendThread->isDone()));
 
     if(this->mRecvThread->isDone() && this->mSendThread->isDone()) {
         this->mRecvThread->start();
         this->mSendThread->start();
-        Logger::log("Socket threads sucessfully started.\n");
+        //Logger::log("Socket threads sucessfully started.\n");
         return true;
     }else {
-        Logger::log("Socket threads failed to start.\n");
+        //Logger::log("Socket threads failed to start.\n");
         return false;
     }
 }
@@ -280,28 +279,28 @@ void SocketClient::endThreads() {
 
 void SocketClient::sendFunc() {
 
-    Logger::log("Starting Send Thread.\n");
+    //Logger::log("Starting Send Thread.\n");
 
     while (true) {
         trySendQueue();
     }
 
-    Logger::log("Ending Send Thread.\n");
+    //Logger::log("Ending Send Thread.\n");
 }
 
 void SocketClient::recvFunc() {
 
     nn::socket::Recv(this->socket_log_socket, nullptr, 0, 0);
 
-    Logger::log("Starting Recv Thread.\n");
+    //Logger::log("Starting Recv Thread.\n");
 
     while (true) {
         if (!recv()) {
-            Logger::log("Receiving Packet Failed!\n");
+            //Logger::log("Receiving Packet Failed!\n");
         }
     }
 
-    Logger::log("Ending Recv Thread.\n");
+    //Logger::log("Ending Recv Thread.\n");
 }
 
 bool SocketClient::queuePacket(Packet* packet) {

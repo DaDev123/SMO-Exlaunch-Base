@@ -34,7 +34,7 @@ class SocketBase {
         const char *sock_ip;
 
         u16 port;
-        SocketLogState socket_log_state = SOCKET_LOG_UNINITIALIZED;
+        u8 socket_log_state = SocketLogState::UNINITIALIZED;
         s32 socket_log_socket;
 
         int sock_flags;

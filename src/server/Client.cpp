@@ -1,9 +1,8 @@
 #include "server/Client.hpp"
-#include "al/layout/SimpleLayoutAppearWaitEnd.h"
-#include "al/util/LiveActorUtil.h"
-#include "game/SaveData/SaveDataAccessFunction.h"
-#include "heap/seadHeapMgr.h"
-#include "logger.hpp"
+#include "Library/Play/Layout/SimpleLayoutAppearWaitEnd.h"
+//#include "al/util/LiveActorUtil.h"
+#include "System/SaveDataAccessFunction.h"
+#include <heap/seadHeapMgr.h>
 #include "packets/Packet.h"
 
 SEAD_SINGLETON_DISPOSER_IMPL(Client)
@@ -39,15 +38,15 @@ Client::Client() {
 
     nn::account::Nickname playerName;
     nn::account::GetNickname(&playerName, mUserID);
-    Logger::setLogName(playerName.name);  // set Debug logger name to player name
+    //Logger::setLogName(playerName.name);  // set Debug logger name to player name
 
     mUsername = playerName.name;
     
     mUserID.print();
 
-    Logger::log("Player Name: %s\n", playerName.name);
+    //Logger::log("Player Name: %s\n", playerName.name);
 
-    Logger::log("%s Build Number: %s\n", playerName.name, TOSTRING(BUILDVERSTR));
+    //Logger::log("%s Build Number: %s\n", playerName.name, TOSTRING(BUILDVERSTR));
 
 }
 
@@ -72,7 +71,7 @@ void Client::init(al::LayoutInitInfo const &initInfo, GameDataHolderAccessor hol
 
     startThread();
 
-    Logger::log("Heap Free Size: %f/%f\n", mHeap->getFreeSize() * 0.001f, mHeap->getSize() * 0.001f);
+    //Logger::log("Heap Free Size: %f/%f\n", mHeap->getFreeSize() * 0.001f, mHeap->getSize() * 0.001f);
 }
 /**
  * @brief starts client read thread
@@ -83,10 +82,10 @@ void Client::init(al::LayoutInitInfo const &initInfo, GameDataHolderAccessor hol
 bool Client::startThread() {
     if(mReadThread->isDone() ) {
         mReadThread->start();
-        Logger::log("Read Thread Sucessfully Started.\n");
+        //Logger::log("Read Thread Sucessfully Started.\n");
         return true;
     }else {
-        Logger::log("Read Thread has already started! Or other unknown reason.\n");
+        //Logger::log("Read Thread has already started! Or other unknown reason.\n");
         return false;
     }
 }
@@ -97,13 +96,13 @@ bool Client::startThread() {
 void Client::restartConnection() {
 
     if (!sInstance) {
-        Logger::log("Static Instance is null!\n");
+        //Logger::log("Static Instance is null!\n");
         return;
     }
 
     sead::ScopedCurrentHeapSetter setter(sInstance->mHeap);
 
-    Logger::log("Sending Disconnect.\n");
+    //Logger::log("Sending Disconnect.\n");
 
     PlayerDC *playerDC = new PlayerDC();
 
@@ -112,7 +111,7 @@ void Client::restartConnection() {
     sInstance->mSocket->queuePacket(playerDC);
 
     if (sInstance->mSocket->closeSocket()) {
-        Logger::log("Sucessfully Closed Socket.\n");
+        //Logger::log("Sucessfully Closed Socket.\n");
     }
 
     sInstance->mConnectCount = 0;
@@ -121,10 +120,10 @@ void Client::restartConnection() {
 
     if(sInstance->mSocket->getLogState() == SOCKET_LOG_CONNECTED) {
 
-        Logger::log("Reconnect Sucessful!\n");
+        //Logger::log("Reconnect Sucessful!\n");
 
     } else {
-        Logger::log("Reconnect Unsuccessful.\n");
+        //Logger::log("Reconnect Unsuccessful.\n");
     }
 }
 /**
@@ -163,7 +162,7 @@ bool Client::startConnection() {
 
     if (mIsConnectionActive) {
 
-        Logger::log("Sucessful Connection. Waiting to recieve init packet.\n");
+        //Logger::log("Sucessful Connection. Waiting to recieve init packet.\n");
 
         bool waitingForInitPacket = true;
         // wait for client init packet
@@ -177,7 +176,7 @@ bool Client::startConnection() {
                 if (curPacket->mType == PacketType::CLIENTINIT) {
                     InitPacket* initPacket = (InitPacket*)curPacket;
 
-                    Logger::log("Server Max Player Size: %d\n", initPacket->maxPlayers);
+                    //Logger::log("Server Max Player Size: %d\n", initPacket->maxPlayers);
 
                     waitingForInitPacket = false;
                 }
@@ -185,7 +184,7 @@ bool Client::startConnection() {
                 free(curPacket);
 
             } else {
-                Logger::log("Recieve failed! Stopping Connection.\n");
+                //Logger::log("Recieve failed! Stopping Connection.\n");
                 mIsConnectionActive = false;
                 waitingForInitPacket = false;
             }
@@ -202,7 +201,7 @@ bool Client::startConnection() {
 bool Client::openKeyboardIP() {
 
     if (!sInstance) {
-        Logger::log("Static Instance is null!\n");
+        //Logger::log("Static Instance is null!\n");
         return false;
     }
 
@@ -241,7 +240,7 @@ bool Client::openKeyboardIP() {
 bool Client::openKeyboardPort() {
 
     if (!sInstance) {
-        Logger::log("Static Instance is null!\n");
+        //Logger::log("Static Instance is null!\n");
         return false;
     }
 
@@ -293,7 +292,7 @@ void Client::readFunc() {
 
     if (!startConnection()) {
 
-        Logger::log("Failed to Connect to Server.\n");
+        //Logger::log("Failed to Connect to Server.\n");
 
         nn::os::SleepThread(nn::TimeSpan::FromNanoSeconds(250000000)); // sleep active thread for 0.25 seconds
 
@@ -318,7 +317,7 @@ void Client::readFunc() {
                 updatePlayerConnect((PlayerConnect*)curPacket);
                 break;
             case PacketType::PLAYERDC:
-                Logger::log("Received Player Disconnect!\n");
+                //Logger::log("Received Player Disconnect!\n");
                 curPacket->mUserID.print();
                 disconnectPlayer((PlayerDC*)curPacket);
                 break;
@@ -327,23 +326,23 @@ void Client::readFunc() {
                 break;
             case PacketType::CLIENTINIT: {
                 InitPacket* initPacket = (InitPacket*)curPacket;
-                Logger::log("Server Max Player Size: %d\n", initPacket->maxPlayers);
+                //Logger::log("Server Max Player Size: %d\n", initPacket->maxPlayers);
                 break;
             }
             default:
-                Logger::log("Discarding Unknown Packet Type.\n");
+                //Logger::log("Discarding Unknown Packet Type.\n");
                 break;
             }
 
             free(curPacket);
 
         }else { // if false, socket has errored or disconnected, so close the socket and end this thread.
-            Logger::log("Client Socket Encountered an Error! Errno: 0x%x\n", mSocket->socket_errno);
+            //Logger::log("Client Socket Encountered an Error! Errno: 0x%x\n", mSocket->socket_errno);
         }
 
     }
 
-    Logger::log("Client Read Thread ending.\n");
+    //Logger::log("Client Read Thread ending.\n");
 }
 
 /**
@@ -366,7 +365,7 @@ void Client::sendToStage(ChangeStagePacket* packet) {
 
         GameDataHolderAccessor accessor(mSceneInfo->mSceneObjHolder);
 
-        Logger::log("Sending Player to %s at Entrance %s in Scenario %d\n", packet->changeStage,
+        //Logger::log("Sending Player to %s at Entrance %s in Scenario %d\n", packet->changeStage,
                      packet->changeID, packet->scenarioNo);
         
         ChangeStageInfo info(accessor.mData, packet->changeID, packet->changeStage, false, packet->scenarioNo, static_cast<ChangeStageInfo::SubScenarioType>(packet->subScenarioType));
@@ -483,7 +482,7 @@ void Client::setLastUsedPort(const int port) {
 void Client::setSceneInfo(const al::ActorInitInfo& initInfo, const StageScene *stageScene) {
 
     if (!sInstance) {
-        Logger::log("Client Null!\n");
+        //Logger::log("Client Null!\n");
         return;
     }
 

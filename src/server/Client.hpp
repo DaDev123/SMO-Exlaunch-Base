@@ -9,63 +9,53 @@
 #pragma once
 
 #include "Keyboard.hpp"
-#include "al/actor/ActorInitInfo.h"
-#include "al/actor/ActorSceneInfo.h"
-#include "al/async/AsyncFunctorThread.h"
-#include "al/async/FunctorV0M.hpp"
-#include "al/LiveActor/LiveActor.h"
-#include "al/layout/LayoutInitInfo.h"
-#include "al/layout/SimpleLayoutAppearWaitEnd.h"
-#include "al/layout/WindowConfirmWait.h"
-#include "al/util.hpp"
-#include "al/layout/LayoutActor.h"
-#include "al/gamepad/util.h"
-#include "al/camera/CameraPoser.h"
-#include "al/camera/alCameraPoserFunction.h"
+#include "Library/LiveActor/ActorInitInfo.h"
+#include "Library/LiveActor/ActorSceneInfo.h"
+#include "Library/Thread/AsyncFunctorThread.h"
+#include "Library/Thread/FunctorV0M.h"
+#include "Library/LiveActor/LiveActor.h"
+#include "Library/Layout/LayoutInitInfo.h"
+#include "Library/Play/Layout/SimpleLayoutAppearWaitEnd.h"
+#include "Library/Play/Layout/WindowConfirm.h" //original was WindowConfirmWait.h
+#include "utilheader.hpp"
+#include "Library/Layout/LayoutActor.h"
+#include "Library/Camera/CameraPoser.h"
+#include "Library/Camera/CameraPoserFunction.h"
 
-#include "container/seadPtrArray.h"
-#include "game/Actors/Shine.h"
-#include "game/GameData/GameDataHolderAccessor.h"
-#include "game/Player/PlayerActorHakoniwa.h"
-#include "game/StageScene/StageScene.h"
-#include "game/Layouts/CoinCounter.h"
-#include "game/Player/PlayerFunction.h"
-#include "game/GameData/GameDataHolderWriter.h"
-#include "game/GameData/GameDataFunction.h"
+#include <container/seadPtrArray.h>
+#include "System/GameDataHolderAccessor.h"
+#include "Player/PlayerActorHakoniwa.h"
+#include "Scene/StageScene.h"
+#include "Player/PlayerFunction.h"
+#include "System/GameDataHolderWriter.h"
+#include "System/GameDataFunction.h"
 
-#include "heap/seadExpHeap.h"
-#include "rs/util.hpp"
+#include <heap/seadExpHeap.h>
 
-#include "sead/heap/seadDisposer.h"
-#include "sead/math/seadVector.h"
-#include "sead/math/seadMatrix.h"
-#include "sead/prim/seadSafeString.h"
-#include "sead/prim/seadSafeString.hpp"
-#include "sead/gfx/seadCamera.h"
-#include "sead/basis/seadNew.h"
-#include "sead/container/seadSafeArray.h"
-#include "sead/thread/seadMutex.h"
+#include <heap/seadDisposer.h>
+#include <math/seadVector.h>
+#include <math/seadMatrix.h>
+#include <prim/seadSafeString.h>
+#include <prim/seadSafeString.hpp>
+#include <gfx/seadCamera.h>
+#include <basis/seadNew.h>
+#include <container/seadSafeArray.h>
+#include <thread/seadMutex.h>
 
-#include "nn/account.h"
+#include <nn/account.h>
 #include "types.h"
 
-#include "logger.hpp"
 #include "server/SocketClient.hpp"
 #include "syssocket/sockdefines.h"
-#include "debugMenu.hpp"
 #include "Keyboard.hpp"
 
 #include <cstddef>
 #include <stdlib.h>
 
-#define MAXPUPINDEX 32
-
 struct UIDIndexNode {
     nn::account::Uid uid;
     int puppetIndex;
 };
-
-class HideAndSeekIcon;
 
 class Client {
     SEAD_SINGLETON_DISPOSER(Client)
@@ -80,21 +70,12 @@ class Client {
         static void restartConnection();
 
         static bool isSocketActive() { return sInstance ? sInstance->mSocket->isConnected() : false; };
-        static bool isNeedUpdateShines();
-        bool isShineCollected(int shineId);
 
-        static void sendHackCapInfPacket(const HackCap *hackCap);
         static void sendPlayerInfPacket(const PlayerActorBase *player, bool isYukimaru);
         static void sendGameInfPacket(const PlayerActorHakoniwa *player, GameDataHolderAccessor holder);
         static void sendGameInfPacket(GameDataHolderAccessor holder);
         static void sendCostumeInfPacket(const char *body, const char *cap);
-        static void sendShineCollectPacket(int shineId);
-        static void sendTagInfPacket();
-        static void sendCaptureInfPacket(const PlayerActorHakoniwa *player);
-
-        int getCollectedShinesCount() { return curCollectedShines.size(); }
-        int getShineID(int index) { if (index < curCollectedShines.size()) { return curCollectedShines[index]; } return -1; }
-
+        
         static void update();
 
         static void clearArrays();
@@ -128,17 +109,10 @@ class Client {
         static void setLastUsedIP(const char* ip);
 
         static void setLastUsedPort(const int port);
-
-        static void setTagState(bool state);
-
+    
         static void setSceneInfo(const al::ActorInitInfo& initInfo, const StageScene *stageScene);
 
-        static bool tryRegisterShine(Shine* shine);
-
-        static Shine* findStageShine(int shineID);
-
-        static void updateShines();
-
+        
         static bool openKeyboardIP();
         static bool openKeyboardPort();
 
@@ -148,10 +122,7 @@ class Client {
 
         static void hideConnect();
 
-        void resetCollectedShines();
-
-        void removeShine(int shineId);
-
+        
         // public for debug purposes
         SocketClient *mSocket;
 
@@ -175,13 +146,7 @@ class Client {
 
         bool mIsConnectionActive = false;
 
-        // --- Server Syncing Members --- 
-        
-        // array of shine IDs for checking if multiple shines have been collected in quick sucession, all moons within the players stage that match the ID will be deleted
-        sead::SafeArray<int, 128> curCollectedShines;
-        int collectedShineCount = 0;
-
-        int lastCollectedShine = -1;
+        // --- Server Syncing Members ---
 
 
         Keyboard* mKeyboard = nullptr; // keyboard for setting server IP
@@ -211,9 +176,7 @@ class Client {
             mSceneInfo  = nullptr;  // TODO: create custom scene info class with only the info we actually need
 
         const StageScene *mCurStageScene = nullptr;
-
-        sead::PtrArray<Shine> mShineArray;  // List of all Shines currently in a Stage
-
+    
         sead::FixedSafeString<0x40> mStageName;
 
         GameDataHolderAccessor mHolder;
@@ -221,9 +184,5 @@ class Client {
         u8 mScenario = 0;
 
         sead::ExpHeap *mHeap = nullptr; // Custom FrameHeap used for all Client related memory
-
-        // --- Puppet Info ---
-
-        int maxPuppets = 9;  // default max player count is 10, so default max puppets will be 9
-        
+    
 };

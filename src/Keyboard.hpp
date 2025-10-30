@@ -6,6 +6,8 @@
 
 #include <nn/swkbd/swkbd.h>
 
+#include "types.h"
+
 typedef void (*KeyboardSetup)(nn::swkbd::KeyboardConfig&);
 
 class Keyboard {

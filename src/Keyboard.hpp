@@ -1,12 +1,10 @@
 #pragma once
 
 #include <cstddef>
-#include "al/async/AsyncFunctorThread.h"
-#include "al/async/FunctorV0M.hpp"
+#include "Library/Thread/AsyncFunctorThread.h"
+#include "Library/Thread/FunctorV0M.h"
 
-#include "nn/swkbd/swkbd.h"
-
-#include "logger.hpp"
+#include "NintendoSDK/nn/swkbd/swkbd.h"
 
 typedef void (*KeyboardSetup)(nn::swkbd::KeyboardConfig&);
 

@@ -1,7 +1,6 @@
 #include "Keyboard.hpp"
-#include "logger.hpp"
-#include "nn/os.h"
-#include "nn/swkbd/swkbd.h"
+#include "NintendoSDK/nn/os.h"
+#include "NintendoSDK/swkbd/swkbd.h"
 
 Keyboard::Keyboard(ulong strSize) : mResultString(strSize) {
     this->mThread =

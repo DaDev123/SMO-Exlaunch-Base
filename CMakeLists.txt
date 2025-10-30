@@ -17,7 +17,6 @@ set(CONFIG_TITLE_ID 0x${TITLE_ID})
 set(SUBSDKX subsdk9)
 
 add_compile_definitions(EXL_PROGRAM_ID=${CONFIG_TITLE_ID} NNSDK=1)
-add_compile_options(-include netinet/in.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/module/${SUBSDKX}.json.template ${CMAKE_CURRENT_BINARY_DIR}/${SUBSDKX}.json)
 
 ## System

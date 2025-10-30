@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <netinet/in.h>
 #include <vapours/results.hpp>
 #include "nn/util.h"
 #include "nn/os.h"

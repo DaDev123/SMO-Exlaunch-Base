@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "nn/result.h"
+#include <vapours/results.hpp>
 #include "nn/util.h"
 #include "nn/os.h"
 #include "nn/fs.h"

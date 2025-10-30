@@ -1,6 +1,6 @@
 #include "server/SocketBase.hpp"
 #include <cstring>
-#include "nn/result.h"
+#include <vapours/results.hpp>
 #include "types.h"
 
 SocketBase::SocketBase(const char *name)

@@ -4,7 +4,7 @@
 #include <cstring>
 #include "types.h"
 #include "nn.h"
-#include "sead/basis/seadNew.h"
+#include <basis/seadNew.h>
 
 class SocketBase {
 

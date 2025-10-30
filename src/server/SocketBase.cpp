@@ -17,9 +17,9 @@ const char *SocketBase::getStateChar() {
 
     switch (this->socket_log_state)
     {
-    case SOCKET_LOG_CONNECTED:
-        return "Socket Connected";
-    case SOCKET_LOG_UNAVAILABLE:
+    case SOCKET_LOG_CONNECTED:/
+       return "Socket Connected";
+   case SOCKET_LOG_UNAVAILABLE:
         return "Socket Unavailable";
     case SOCKET_LOG_UNINITIALIZED:
         return "Socket Unitialized";
@@ -28,7 +28,7 @@ const char *SocketBase::getStateChar() {
     default:
         return "Unknown State";
     }
-}
+
 
 u8 SocketBase::getLogState() {
     return this->socket_log_state;
@@ -76,7 +76,7 @@ bool SocketBase::closeSocket() {
 
     nn::Result result = nn::socket::Close(this->socket_log_socket);
 
-    return result.isSuccess();
+    return result.IsSuccess();
 }
 
 

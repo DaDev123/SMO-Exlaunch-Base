@@ -20,28 +20,16 @@ static const char *subActorNames[] = {
 };
 
 PuppetActor::PuppetActor(const char *name) : al::LiveActor(name) {
-    mPuppetCap = new PuppetCapActor(name);
-    mCaptures = new HackModelHolder();
     mModelHolder = new PlayerModelHolder(3); // Regular Model, 2D Model, 2D Mini Model
 }
 
 void PuppetActor::init(al::ActorInitInfo const &initInfo) {
-
-    mPuppetCap->init(initInfo);
 
     al::initActorWithArchiveName(this, initInfo, "PuppetActor", nullptr);
 
     const char *bodyName = "Mario";
     const char *capName = "Mario";
 
-    if(mInfo) {
-        bodyName = tryGetPuppetBodyName(mInfo);
-        capName = tryGetPuppetCapName(mInfo);
-
-        mNameTag = new NameTag(this, al::getLayoutInitInfo(initInfo), 4900.0f, 5000.0f,
-                               mInfo->puppetName);
-
-    }
 
     al::LiveActor *normalModel = new al::LiveActor("Normal");
 
@@ -82,130 +70,12 @@ void PuppetActor::init(al::ActorInitInfo const &initInfo) {
 
 void PuppetActor::initAfterPlacement() { al::LiveActor::initAfterPlacement(); }
 
-void PuppetActor::initOnline(PuppetInfo *pupInfo) {
-
-    mInfo = pupInfo;
-
-    mPuppetCap->initOnline(pupInfo);
-}
-
 void PuppetActor::movement() {
     al::LiveActor::movement();
 }
 
 void PuppetActor::calcAnim() {
     al::LiveActor::calcAnim();
-}
-
-void PuppetActor::control() { 
-    if(mInfo) {
-
-        al::LiveActor* curModel = getCurrentModel();
-
-        // Animation Updating
-
-        if(!al::isActionPlaying(curModel, mInfo->curSubAnimStr)) {
-            startAction(mInfo->curAnimStr);
-        }else if(al::isActionEnd(curModel)) {
-            startAction(mInfo->curAnimStr);
-        }
-
-        if(isNeedBlending()) {
-            for (size_t i = 0; i < 6; i++)
-            {
-                setBlendWeight(i, mInfo->blendWeights[i]);
-            }
-        }
-
-        // Position & Rotation Handling
-
-        sead::Vector3f* pPos = al::getTransPtr(this);
-
-        sead::Quatf *pQuat = al::getQuatPtr(this);
-
-        if (!mIs2DModel) {
-            mClosingSpeed = VisualUtils::SmoothMove({pPos, pQuat}, {&mInfo->playerPos, &mInfo->playerRot}, Time::deltaTime, mClosingSpeed, 1440.0f);
-        } else {
-
-            // do not linearly interpolate rotation if model is 2D, and use basic lerp instead of visual util's smooth move
-
-            if(*pPos != mInfo->playerPos) 
-            {
-                al::lerpVec(pPos, *pPos, mInfo->playerPos, 0.25);
-            }
-
-            al::setQuat(this, mInfo->playerRot);
-        }
-
-        // Model Updating
-
-        if (!mIs2DModel && mInfo->is2D) {
-            changeModel("Normal2D");
-            mIs2DModel = true;
-
-        } else if (mIs2DModel && !mInfo->is2D) {
-            changeModel("Normal");
-            mIs2DModel = false;
-        }
-
-        // Capture Updating
-
-        if (mInfo->isCaptured && !mIsCaptureModel) {
-
-            getCurrentModel()->makeActorDead();  // sets previous model to dead so we can try to
-                                                 // switch to capture model
-            setCapture(mInfo->curHack);
-            mIsCaptureModel =  true;
-            getCurrentModel()->makeActorAlive(); // make new model alive
-
-        } else if (!mInfo->isCaptured && mIsCaptureModel) {
-
-            getCurrentModel()->makeActorDead(); // make capture model dead
-            mModelHolder->changeModel("Normal"); // set player model to normal
-            mIsCaptureModel = false;
-            getCurrentModel()->makeActorAlive(); // make player model alive
-
-        }
-
-        // Visibility Updating
-
-        if(mInfo->isCapThrow) {
-            if(al::isDead(mPuppetCap)) {                
-                mPuppetCap->makeActorAlive();
-                al::setTrans(mPuppetCap, mInfo->capPos);
-            }
-        }else {
-            if(al::isAlive(mPuppetCap)) {
-
-                mPuppetCap->makeActorDead();
-
-                startAction(mInfo->curSubAnimStr);
-
-                al::LiveActor* headModel = al::getSubActor(curModel, "頭");
-                if (headModel) { al::startVisAnimForAction(headModel, "CapOn"); }
-            }
-        }
-
-        if (mNameTag) {
-            if (GameModeManager::instance()->isModeAndActive(GameMode::HIDEANDSEEK)) {
-                mNameTag->mIsAlive =
-                    GameModeManager::instance()->getMode<HideAndSeekMode>()->isPlayerIt() && mInfo->isIt;
-                
-            } else {
-                if(!mNameTag->mIsAlive)
-                    mNameTag->appear();
-            }
-        }
-
-        // Sub-Actor Updating
-
-        mPuppetCap->update();
-
-        // Syncing
-
-        syncPose();
-
-    }
 }
 
 void PuppetActor::makeActorAlive() {
@@ -217,27 +87,9 @@ void PuppetActor::makeActorAlive() {
     }
 
     // update name tag when puppet becomes active again
-    if (mInfo) {
-        if (mNameTag) {
-            mNameTag->setText(mInfo->puppetName);
-        }
-    }
 
     al::LiveActor::makeActorAlive();
 
-}
-
-void PuppetActor::makeActorDead() {
-
-    al::LiveActor *curModel = getCurrentModel();
-    
-    if (!al::isDead(curModel)) {
-        curModel->makeActorDead();
-    }
-
-    mPuppetCap->makeActorDead();
-    
-    al::LiveActor::makeActorDead();
 }
 
 void PuppetActor::attackSensor(al::HitSensor* source, al::HitSensor* target) {
@@ -332,77 +184,6 @@ bool PuppetActor::isNeedBlending() {
     }
 }
 
-bool PuppetActor::isInCaptureList(const char *hackName) {
-    return mCaptures->getCapture(hackName) != nullptr;
-}
-
-bool PuppetActor::addCapture(PuppetHackActor* capture, const char* hackType) {
-
-    if (mCaptures->addCapture(capture, hackType)) {
-        return true;
-    }
-    
-    return false;
-}
-
-void PuppetActor::changeModel(const char* newModel) {
-    getCurrentModel()->makeActorDead();
-    mModelHolder->changeModel(newModel);
-    getCurrentModel()->makeActorAlive();
-}
-
-al::LiveActor* PuppetActor::getCurrentModel() {
-    if (mIsCaptureModel) {
-        al::LiveActor* curCapture = mCaptures->getCurrentActor();
-        if (curCapture) {
-            return curCapture;
-        }
-    }
-    return mModelHolder->mCurrentModel->actor;
-}
-
-void PuppetActor::debugTeleportCaptures(const sead::Vector3f& pos) {
-    for (int i = 0; i < mCaptures->getEntryCount(); i++) {
-        al::LiveActor* capture = mCaptures->getCapture(i);
-        if (capture) {
-            al::setTrans(capture, al::getTrans(getCurrentModel()));
-        }
-    }
-}
-
-void PuppetActor::debugTeleportCapture(const sead::Vector3f& pos, int index) {
-    al::LiveActor* capture = mCaptures->getCapture(index);
-    if (capture) {
-        al::setTrans(capture, al::getTrans(getCurrentModel()));
-    }
-}
-
-bool PuppetActor::setCapture(const char* captureName) {
-    if (captureName && mCaptures->setCurrent(captureName)) {
-        mCurCapture = CaptureTypes::FindType(captureName);
-        return true;
-    } else {
-        mCurCapture = CaptureTypes::Type::Unknown;
-        return false;
-    }
-}
-
-void PuppetActor::syncPose() {
-
-    al::LiveActor* curModel = getCurrentModel();
-
-    curModel->mPoseKeeper->updatePoseQuat(al::getQuat(this)); // update pose using a quaternion instead of setting quaternion rotation
-    
-    al::setTrans(curModel, al::getTrans(this));
-
-}
-
-void PuppetActor::emitJoinEffect() {
-
-    al::tryDeleteEffect(this, "Disappear"); // remove previous effect (if played previously)
-
-    al::tryEmitEffect(this, "Disappear", nullptr);
-}
 
 const char *executorName = "ＮＰＣ";
 
@@ -544,7 +325,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
 
     if (costumeInfo->isNeedBodyHair()) {
 
-        Logger::log("Creating Body Hair Parts Model.\n");
+        //Logger::log("Creating Body Hair Parts Model.\n");
 
         al::PartsModel* partsModel = new al::PartsModel("髪");
 

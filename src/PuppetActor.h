@@ -24,78 +24,53 @@
 #include "Player/PlayerConst.h"
 #include "Player/PlayerModelHolder.h"
 
-namespace PlayerCostumeFunction {
-    PlayerBodyCostumeInfo *createBodyCostumeInfo(al::Resource *,char const*);
-    PlayerHeadCostumeInfo *createHeadCostumeInfo(al::Resource *,char const*,bool);
-}
+class PuppetActor : public al::LiveActor, public sead::IDisposer {
+    friend class Ghost;
+public:
+    PuppetActor(const char* name, Ghost* parent);
+    ~PuppetActor() override;
+    virtual void init(al::ActorInitInfo const&) override;
+    virtual void initAfterPlacement(void) override;
+    virtual void control(void) override;
+    virtual void movement(void) override;
+    virtual void makeActorAlive(void) override;
+    virtual void makeActorDead(void) override;
+    virtual void calcAnim(void) override;
 
+    void startAction(const char* actName);
+    void hairControl();
 
-class PuppetActor : public al::LiveActor {
-    public:
-        PuppetActor(const char *name);
-        virtual void init(al::ActorInitInfo const &) override;
-        virtual void initAfterPlacement(void) override;
-        virtual void control(void) override;
-        virtual void movement(void) override;
-        virtual void makeActorAlive(void) override;
-        virtual void makeActorDead(void) override;
-        virtual void calcAnim(void) override;
-        
-        virtual void attackSensor(al::HitSensor *, al::HitSensor *) override;
-        virtual bool receiveMsg(const al::SensorMsg*, al::HitSensor*, al::HitSensor*) override;
+    void setBlendWeight(int index, float weight) { al::setSklAnimBlendWeight(getCurrentModel(), weight, index); };
 
-        void startAction(const char *actName);
-        void hairControl();
+    bool isNeedBlending();
 
-        void setBlendWeight(int index, float weight) { al::setSklAnimBlendWeight(getCurrentModel(), weight, index); };
+    al::LiveActor* getCurrentModel();
 
-        bool isNeedBlending();
+    void debugTeleportCaptures(const sead::Vector3f& pos);
 
-        bool isInCaptureList(const char *hackName);
+    void debugTeleportCapture(const sead::Vector3f& pos, int index);
 
-        //bool addCapture(PuppetHackActor *capture, const char *hackType);
+    void emitJoinEffect();
 
-        al::LiveActor* getCurrentModel();
+private:
+    void changeModel(const char* newModel);
 
-        bool mIsDebug = false;
+    bool setCapture(const char* captureName);
 
-// not a real symbol, func at 0x445A24
-        static void initMarioAudio(al::LiveActor* player, const al::ActorInitInfo& initInfo,
-                                   al::Resource* modelRes, bool isDemo,
-                                   al::AudioKeeper* audioKeeper);
-        // not a real symbol, func at 0x448B8C
-        static void initMarioSubModel(al::LiveActor* subactor, const al::ActorInitInfo& initInfo,
-                                      bool isInvisible, bool isDemo, bool isChromaKey,
-                                      bool isCloset);
-        // not a real symbol, func at 0x445128
-        static PlayerHeadCostumeInfo* initMarioHeadCostumeInfo(al::LiveActor* player,
-                                                               const al::ActorInitInfo& initInfo,
-                                                               const char*, const char*,
-                                                               const char*, const char*, bool, bool,
-                                                               bool, bool, bool);
-        // not a real symbol, func at 0x445DF4
-        static void initMarioDepthModel(al::LiveActor *player, bool isDemo, bool isChromaKey);
-        
-    private:
-        void changeModel(const char* newModel);
+    void syncPose();
 
-        bool setCapture(const char* captureName);
+    Ghost* mParent = nullptr;
+    PuppetCapActor* mPuppetCap = nullptr;
+    HackModelHolder* mCaptures = nullptr;
 
-        void syncPose();
+    PlayerCostumeInfo* mCostumeInfo = nullptr;
+    PlayerModelHolder* mModelHolder = nullptr;
 
-        PlayerCostumeInfo *mCostumeInfo = nullptr;
-        PlayerModelHolder *mModelHolder = nullptr;
-
-
-        bool mIs2DModel = false;
-
-        bool mIsCaptureModel = false;
-
-        float mClosingSpeed = 0;
+    bool mIs2DModel = false;
+    bool mIsCaptureModel = false;
 };
 
-        
 PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player, const al::ActorInitInfo& initInfo,
                                         char const* bodyName, char const* capName, int subActorNum,
                                         al::AudioKeeper* audioKeeper);
-PlayerHeadCostumeInfo* initMarioHeadCostumeInfo(al::LiveActor* player, const al::ActorInitInfo &initInfo, const char* headModelName, const char* capModelName, const char* headType, const char* headSuffix);
+PlayerHeadCostumeInfo* initMarioHeadCostumeInfo(al::LiveActor* player, const al::ActorInitInfo& initInfo, const char* headModelName, const char* capModelName, const char* headType, const char* headSuffix);

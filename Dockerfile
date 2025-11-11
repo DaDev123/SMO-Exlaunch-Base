@@ -15,6 +15,8 @@ RUN apt-get update && \
 # Build the mod
 RUN make
 
+RUN /opt/devkitpro/devkitA64/bin/aarch64-none-elf-addr2line --exe=build/subsdk9.elf 0xa0e0
+
 # List what was built (for debugging)
 RUN find /app -name "*.nso" -o -name "*.elf" -o -name "main.npdm" -o -name "subsdk9"
 

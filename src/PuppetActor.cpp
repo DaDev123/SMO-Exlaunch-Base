@@ -1,3 +1,5 @@
+#include <exlaunch.hpp>
+
 #include <cmath>
 #include <cstddef>
 #include "Library/Obj/PartsModel.h"
@@ -45,7 +47,7 @@ void PuppetActor::init(al::ActorInitInfo const& initInfo)
 
     mCostumeInfo = initMario(normalModel, initInfo, bodyName, capName, 0, false, nullptr, false, false);
 
-    normalModel->mActorActionKeeper->mPadAndCamCtrl->mRumbleCount = 0; // set rumble count to zero so that no rumble actions will run
+   // normalModel->mActorActionKeeper->mPadAndCamCtrl->mRumbleCount = 0; // set rumble count to zero so that no rumble actions will run
 
     mModelHolder->registerModel(normalModel, "Normal");
 
@@ -93,7 +95,7 @@ void PuppetActor::calcAnim()
 
 void PuppetActor::control() {
 
-    mPuppetCap->update();
+    
 
     syncPose();
 }
@@ -196,7 +198,7 @@ bool PuppetActor::isNeedBlending()
 
 al::LiveActor* PuppetActor::getCurrentModel()
 {
-    return mModelHolder->currentModel->mLiveActor;
+    return mModelHolder->mCurrentModel->mLiveActor;
 }
 
 void PuppetActor::changeModel(const char* newModel)
@@ -233,7 +235,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
     al::AudioKeeper* audioKeeper)
 {
     al::ActorResource* modelRes = al::findOrCreateActorResourceWithAnimResource(
-        initInfo.mResourceHolder, al::StringTmp<0x100>("ObjectData/%s", bodyName).cstr(),
+        initInfo.actorResourceHolder, al::StringTmp<0x100>("ObjectData/%s", bodyName).cstr(),
         al::StringTmp<0x100>("ObjectData/%s", "PlayerAnimation").cstr(), 0, false);
 
     PlayerBodyCostumeInfo* bodyInfo = PlayerCostumeFunction::createBodyCostumeInfo(modelRes->mResourceModel, bodyName);
@@ -248,7 +250,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
 
     al::ModelMaterialCategory::tryCreate(
         player->mModelKeeper->mModelCtrl, "Player",
-        initInfo.mActorSceneInfo.mGfxSysInfo->mMaterialCategoryKeeper);
+        initInfo.actorSceneInfo.mGfxSysInfo->mMaterialCategoryKeeper);
 
     al::initPartialSklAnim(player, 1, 1, 32);
     al::addPartialSklAnimPartsListRecursive(player, "Spine1", 0);
@@ -297,7 +299,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
 
     const char* capModelName;
 
-    if (bodyInfo->mIsUseHeadSuffix) {
+    if (bodyInfo->isUseHeadSuffix) {
         if (al::isEqualString(bodyInfo->costumeName, capName)) {
             capModelName = "";
         } else {
@@ -310,7 +312,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
     const char* headType;
 
     if (!al::isEqualSubString(capName, "Mario64")) {
-        if (bodyInfo->mIsUseShortHead && al::isEqualString(capName, "MarioPeach")) {
+        if (bodyInfo->isUseShortHead && al::isEqualString(capName, "MarioPeach")) {
             headType = "Short";
         } else {
             headType = "";

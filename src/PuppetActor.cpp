@@ -238,7 +238,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
         initInfo.actorResourceHolder, al::StringTmp<0x100>("ObjectData/%s", bodyName).cstr(),
         al::StringTmp<0x100>("ObjectData/%s", "PlayerAnimation").cstr(), 0, false);
 
-    PlayerBodyCostumeInfo* bodyInfo = PlayerCostumeFunction::createBodyCostumeInfo(modelRes->mResourceModel, bodyName);
+    PlayerBodyCostumeInfo* bodyInfo = PlayerCostumeFunction::createBodyCostumeInfo(modelRes->mModelRes, bodyName);
 
     al::initActorSceneInfo(player, initInfo);
     al::initActorPoseTQGSV(player);
@@ -260,7 +260,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
     al::initExecutorModelUpdate(player, initInfo);
 
     al::ByamlIter iter;
-    if (al::tryGetActorInitFileIter(&iter, modelRes->mResourceModel, "InitEffect", 0)) {
+    if (al::tryGetActorInitFileIter(&iter, modelRes->mModelRes, "InitEffect", 0)) {
         const char* effectKeeperName;
         if (iter.tryGetStringByKey(&effectKeeperName, "Name")) {
             al::initActorEffectKeeper(player, initInfo, effectKeeperName);

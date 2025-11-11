@@ -19,18 +19,12 @@ static const char* subActorNames[] = {
     "右手" // Right Hand
 };
 
-PuppetActor::PuppetActor(const char* name, Ghost* parent)
+PuppetActor::PuppetActor(const char* name)
     : al::LiveActor(name)
 {
-    mParent = parent;
     mModelHolder = new PlayerModelHolder(3); // Regular Model, 2D Model, 2D Mini Model
-    mPuppetCap = new PuppetCapActor(name);
-    mCaptures = new HackModelHolder();
 }
 
-PuppetActor::~PuppetActor() {
-    mParent->removePuppet();
-}
 
 void PuppetActor::init(al::ActorInitInfo const& initInfo)
 {
@@ -38,7 +32,6 @@ void PuppetActor::init(al::ActorInitInfo const& initInfo)
                                                     char const *bodyName, char const *capName, int subActorNum,
                                                     bool isDemo, al::AudioKeeper *audioKeeper, bool guessIsChromaKey,
                                                     bool isCloset);
-    mPuppetCap->init(initInfo);
 
     al::initActorWithArchiveName(this, initInfo, "PlayerActorHakoniwa", nullptr);
 

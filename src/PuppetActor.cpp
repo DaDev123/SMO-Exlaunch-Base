@@ -24,7 +24,7 @@ static const char* subActorNames[] = {
 PuppetActor::PuppetActor(const char* name)
     : al::LiveActor(name)
 {
-    mModelHolder = new PlayerModelHolder(3); // Regular Model, 2D Model, 2D Mini Model
+    //mModelHolder = new PlayerModelHolder(3); // Regular Model, 2D Model, 2D Mini Model
 }
 
 
@@ -49,13 +49,13 @@ void PuppetActor::init(al::ActorInitInfo const& initInfo)
 
    // normalModel->mActorActionKeeper->mPadAndCamCtrl->mRumbleCount = 0; // set rumble count to zero so that no rumble actions will run
 
-    mModelHolder->registerModel(normalModel, "Normal");
+   // mModelHolder->registerModel(normalModel, "Normal");
 
     al::LiveActor* normal2DModel = new al::LiveActor("Normal2D");
 
     PlayerFunction::initMarioModelActor2D(normal2DModel, initInfo, al::StringTmp<0x40>("%s2D", mCostumeInfo->mBodyInfo->costumeName).cstr(), PlayerFunction::isInvisibleCap(mCostumeInfo));
 
-    mModelHolder->registerModel(normal2DModel, "Normal2D");
+   // mModelHolder->registerModel(normal2DModel, "Normal2D");
 
     al::setClippingInfo(normalModel, 50000.0f, 0);
     al::setClippingNearDistance(normalModel, 50000.0f);
@@ -198,13 +198,13 @@ bool PuppetActor::isNeedBlending()
 
 al::LiveActor* PuppetActor::getCurrentModel()
 {
-    return mModelHolder->mCurrentModel->actor;
+    //return mModelHolder->mCurrentModel->actor;
 }
 
 void PuppetActor::changeModel(const char* newModel)
 {
     getCurrentModel()->makeActorDead();
-    mModelHolder->changeModel(newModel);
+    //mModelHolder->changeModel(newModel);
     getCurrentModel()->makeActorAlive();
 }
 

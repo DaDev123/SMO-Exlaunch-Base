@@ -2,7 +2,6 @@
 #include <cstddef>
 #include "Library/Obj/PartsModel.h"
 #include "Util/SensorMsgFunction.h"
-#include "Player/PlayerCostumeFunction.h"
 #include "Player/PlayerCostumeInfo.h"
 #include "Library/LiveActor/LiveActor.h"
 #include "Library/Play/Layout/BalloonMessage.h"

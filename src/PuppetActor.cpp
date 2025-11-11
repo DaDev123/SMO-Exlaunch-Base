@@ -21,12 +21,6 @@ static const char* subActorNames[] = {
     "右手" // Right Hand
 };
 
-PuppetActor::PuppetActor(const char* name)
-    : al::LiveActor(name)
-{
-    //mModelHolder = new PlayerModelHolder(3); // Regular Model, 2D Model, 2D Mini Model
-}
-
 
 void PuppetActor::init(al::ActorInitInfo const& initInfo)
 {

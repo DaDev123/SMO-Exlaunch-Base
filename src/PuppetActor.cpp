@@ -198,7 +198,7 @@ bool PuppetActor::isNeedBlending()
 
 al::LiveActor* PuppetActor::getCurrentModel()
 {
-    return mModelHolder->mCurrentModel->mLiveActor;
+    return mModelHolder->mCurrentModel->actor;
 }
 
 void PuppetActor::changeModel(const char* newModel)
@@ -250,7 +250,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
 
     al::ModelMaterialCategory::tryCreate(
         player->mModelKeeper->mModelCtrl, "Player",
-        initInfo.actorSceneInfo.mGfxSysInfo->mMaterialCategoryKeeper);
+        initInfo.actorSceneInfo.graphicsSystemInfo->mMaterialCategoryKeeper);
 
     al::initPartialSklAnim(player, 1, 1, 32);
     al::addPartialSklAnimPartsListRecursive(player, "Spine1", 0);
@@ -267,7 +267,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
         }
     }
 
-    PlayerFunction::initMarioAudio(player, initInfo, modelRes->mResourceModel, false, audioKeeper);
+    //PlayerFunction::initMarioAudio(player, initInfo, modelRes->mResourceModel, false, audioKeeper);
     al::initActorActionKeeper(player, modelRes, bodyName, 0);
     al::setMaterialProgrammable(player);
 
@@ -354,7 +354,7 @@ PlayerCostumeInfo* initMarioModelPuppet(al::LiveActor* player,
         al::onSyncHideSubActor(player, partsModel);
     }
 
-    PlayerFunction::initMarioDepthModel(player, false, false);
+    //PlayerFunction::initMarioDepthModel(player, false, false);
 
     rs::createPlayerSklRetargettingInfo(player, sead::Vector3f::ones);
 

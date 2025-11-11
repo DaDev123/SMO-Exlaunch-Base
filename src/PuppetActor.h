@@ -44,14 +44,6 @@ class PuppetActor : public al::LiveActor {
         virtual void attackSensor(al::HitSensor *, al::HitSensor *) override;
         virtual bool receiveMsg(const al::SensorMsg*, al::HitSensor*, al::HitSensor*) override;
 
-        virtual const char* getName() const override {
-            if (mInfo)
-                return mInfo->puppetName;
-            return mName;
-        }
-
-        void initOnline(PuppetInfo *pupInfo);
-
         void startAction(const char *actName);
         void hairControl();
 
@@ -61,19 +53,9 @@ class PuppetActor : public al::LiveActor {
 
         bool isInCaptureList(const char *hackName);
 
-        PuppetInfo* getInfo() { return mInfo; }
-
-        bool addCapture(PuppetHackActor *capture, const char *hackType);
+        //bool addCapture(PuppetHackActor *capture, const char *hackType);
 
         al::LiveActor* getCurrentModel();
-
-        int getMaxCaptures() {return mCaptures->getEntryCount(); };
-
-        void debugTeleportCaptures(const sead::Vector3f& pos);
-
-        void debugTeleportCapture(const sead::Vector3f& pos, int index);
-
-        void emitJoinEffect();
 
         bool mIsDebug = false;
 
@@ -102,13 +84,8 @@ class PuppetActor : public al::LiveActor {
         void syncPose();
 
         PlayerCostumeInfo *mCostumeInfo = nullptr;
-        PuppetInfo *mInfo = nullptr;
-        PuppetCapActor *mPuppetCap = nullptr;
         PlayerModelHolder *mModelHolder = nullptr;
-        HackModelHolder* mCaptures = nullptr;
-        NameTag *mNameTag = nullptr;
 
-        CaptureTypes::Type mCurCapture = CaptureTypes::Type::Unknown;
 
         bool mIs2DModel = false;
 

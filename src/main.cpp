@@ -79,5 +79,5 @@ extern "C" void exl_main(void* x0, void* x1) {
     /* Setup hooking environment. */
     exl::hook::Initialize();
     StageSceneControlHook::InstallAtSymbol("_ZN10StageScene7controlEv");
-    ActorFactoryHook::InstallAtSymbol("_ZN19ProjectActorFactoryC2Ev")
+    ActorFactoryHook::InstallAtSymbol("_ZN19ProjectActorFactoryC2Ev");
 }

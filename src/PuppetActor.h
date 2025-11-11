@@ -25,9 +25,8 @@
 #include "Player/PlayerModelHolder.h"
 
 class PuppetActor : public al::LiveActor, public sead::IDisposer {
-    friend class Ghost;
 public:
-    PuppetActor(const char* name, Ghost* parent);
+    PuppetActor(const char* name);
     ~PuppetActor() override;
     virtual void init(al::ActorInitInfo const&) override;
     virtual void initAfterPlacement(void) override;
@@ -58,10 +57,6 @@ private:
     bool setCapture(const char* captureName);
 
     void syncPose();
-
-    Ghost* mParent = nullptr;
-    PuppetCapActor* mPuppetCap = nullptr;
-    HackModelHolder* mCaptures = nullptr;
 
     PlayerCostumeInfo* mCostumeInfo = nullptr;
     PlayerModelHolder* mModelHolder = nullptr;

@@ -9,6 +9,15 @@
 #include <cstdio>
 #include <cstring>
 
+namespace {
+NERVE_IMPL(MovieTestLayout, Decode)
+NERVE_IMPL(MovieTestLayout, WaitForInput)
+NERVE_IMPL(MovieTestLayout, Play)
+
+NERVES_MAKE_NOSTRUCT(MovieTestLayout, WaitForInput);
+NERVES_MAKE_STRUCT(MovieTestLayout, Decode, Play);
+}  // namespace
+
 namespace al {
     al::ISceneObj* createSceneObj(const al::IUseSceneObjHolder*, int);
     void updateTextureInfo(nn::ui2d::TextureInfo*, const agl::TextureData&);
@@ -69,8 +78,4 @@ void MovieTestLayout::exePlay() {
     }
 }
 
-namespace {
-NERVE_IMPL(MovieTestLayout, Decode)
-NERVE_IMPL(MovieTestLayout, WaitForInput)
-NERVE_IMPL(MovieTestLayout, Play)
-}  // namespace
+

@@ -1,5 +1,5 @@
 #include "utilheader.hpp"
-#include "Library/Scene/SceneObjHolder.h"
+#include "Library/Scene/ISceneObj.h"
 #include <heap/seadDisposer.h>
 
 class MoviePlayer : public al::ISceneObj, public sead::IDisposer {

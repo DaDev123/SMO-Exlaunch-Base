@@ -3,21 +3,23 @@
 #include "Library/Bgm/BgmLineFunction.h"
 #include "Project/Scene/SceneInitInfo.h"
 #include "Scene/StageScene.h"
-#include "Library/Scene/SceneObjHolder.h"
-//#include "Library/Movie/MoviePlayer.h"
+
+// Forward declare MoviePlayer since we don't have the header
+class MoviePlayer {
+public:
+    void play(const char* name);
+};
 
 HOOK_DEFINE_TRAMPOLINE(StageSceneInit) {
     static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {
-        // Call original init first
         Orig(stageScene, info);
         
-        // Play video after scene is initialized
-        al::MoviePlayer* player = static_cast<al::MoviePlayer*>(al::getSceneObj(stageScene, 0x24));
+        // Cast to MoviePlayer and play
+        MoviePlayer* player = static_cast<MoviePlayer*>(al::getSceneObj(stageScene, 0x24));
         if (player) {
             player->play("glitch");
         }
         
-        // Stop BGM if playing
         if (al::isPlayingBgm(stageScene)) {
             al::stopAllBgm(stageScene, 0);
         }

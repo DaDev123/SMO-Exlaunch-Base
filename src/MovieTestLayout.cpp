@@ -5,6 +5,8 @@
 #include "MovieTestLayout.hpp"
 
 #include "Library/Scene/SceneObjHolder.h"
+#include "Library/Nerve/NerveSetupUtil.h"
+#include "Library/Nerve/NerveUtil.h"
 
 #include <cstdio>
 #include <cstring>

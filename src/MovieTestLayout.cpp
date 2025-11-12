@@ -4,6 +4,8 @@
 #include "MoviePlayer.hpp"
 #include "MovieTestLayout.hpp"
 
+#include "al/Library/Scene/SceneObjHolder.h"
+
 #include <cstdio>
 #include <cstring>
 

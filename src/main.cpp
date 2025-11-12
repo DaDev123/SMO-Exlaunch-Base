@@ -4,7 +4,7 @@
 #include "Project/Scene/SceneInitInfo.h"
 #include "Scene/StageScene.h"
 #include "Library/Scene/SceneObjHolder.h"
-#include "Library/Movie/MoviePlayer.h"
+//#include "Library/Movie/MoviePlayer.h"
 
 HOOK_DEFINE_TRAMPOLINE(StageSceneInit) {
     static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {

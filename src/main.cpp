@@ -21,6 +21,6 @@ HOOK_DEFINE_TRAMPOLINE(InstallCustomLayouts){
 
 extern "C" void exl_main(void* x0, void* x1) {
     exl::hook::Initialize();
-    StageSceneControl::InstallAtSymbol("_ZN10StageScene7controlEv");
+    //StageSceneControl::InstallAtSymbol("_ZN10StageScene7controlEv");
     InstallCustomLayouts::InstallAtSymbol("_ZN16StageSceneLayoutC1EPKcRKN2al14LayoutInitInfoEPKNS2_12PlayerHolderEPKNS2_17SubCameraRendererE");
 }

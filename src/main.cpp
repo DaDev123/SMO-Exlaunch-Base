@@ -3,6 +3,7 @@
 #include "Library/Bgm/BgmLineFunction.h"
 #include "Project/Scene/SceneInitInfo.h"
 #include "Scene/StageScene.h"
+#include "Library/Scene/SceneObjUtil.h"
 
 // Forward declare MoviePlayer since we don't have the header
 class MoviePlayer {

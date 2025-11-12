@@ -1,4 +1,3 @@
-
 #include "utilheader.hpp"
 
 #include "MoviePlayer.hpp"
@@ -16,8 +15,7 @@ NERVE_IMPL(MovieTestLayout, Decode)
 NERVE_IMPL(MovieTestLayout, WaitForInput)
 NERVE_IMPL(MovieTestLayout, Play)
 
-NERVES_MAKE_NOSTRUCT(MovieTestLayout, Decode);
-NERVES_MAKE_STRUCT(MovieTestLayout, WaitForInput, Play);
+NERVES_MAKE_STRUCT(MovieTestLayout, Decode, WaitForInput, Play);
 }  // namespace
 
 namespace al {
@@ -79,5 +77,3 @@ void MovieTestLayout::exePlay() {
         appear();
     }
 }
-
-

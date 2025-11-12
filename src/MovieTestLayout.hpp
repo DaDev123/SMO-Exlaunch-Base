@@ -1,10 +1,6 @@
 #pragma once
 
-#include "al/layout/LayoutActor.h"
-#include "al/layout/LayoutInitInfo.h"
-#include "al/util/NerveUtil.h"
-
-#include "logger.hpp"
+#include "utilheader.hpp"
 
 // TODO: kill layout if going through loading zone or paused
 

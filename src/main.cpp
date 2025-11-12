@@ -15,9 +15,10 @@ HOOK_DEFINE_TRAMPOLINE(StageSceneInit) {
     static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {
         Orig(stageScene, info);
         
-        // Cast to MoviePlayer and play
-        MoviePlayer* player = static_cast<MoviePlayer*>(al::getSceneObj(stageScene, 0x24));
-        if (player) {
+        // Use reinterpret_cast since we're casting from ISceneObj*
+        al::ISceneObj* obj = al::getSceneObj(stageScene, 0x24);
+        if (obj) {
+            MoviePlayer* player = reinterpret_cast<MoviePlayer*>(obj);
             player->play("glitch");
         }
         

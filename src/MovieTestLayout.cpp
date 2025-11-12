@@ -38,7 +38,7 @@ MovieTestLayout::MovieTestLayout(const char* name, const al::LayoutInitInfo& ini
 void MovieTestLayout::appear() {
     al::setNerve(this, &NrvMovieTestLayout.Decode);
 
-    mMoviePlayer->play("content:/MovieData/old_1.mp4");
+    mMoviePlayer->play("content:/MovieData/glitch.mp4");
 
     al::LayoutActor::appear();
 }

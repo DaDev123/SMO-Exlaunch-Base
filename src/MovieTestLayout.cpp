@@ -14,8 +14,8 @@ NERVE_IMPL(MovieTestLayout, Decode)
 NERVE_IMPL(MovieTestLayout, WaitForInput)
 NERVE_IMPL(MovieTestLayout, Play)
 
-NERVES_MAKE_NOSTRUCT(MovieTestLayout, WaitForInput);
-NERVES_MAKE_STRUCT(MovieTestLayout, Decode, Play);
+NERVES_MAKE_NOSTRUCT(MovieTestLayout, Decode);
+NERVES_MAKE_STRUCT(MovieTestLayout, WaitForInput, Play);
 }  // namespace
 
 namespace al {
@@ -29,14 +29,14 @@ namespace al {
 MovieTestLayout::MovieTestLayout(const char* name, const al::LayoutInitInfo& initInfo)
     : al::LayoutActor(name) {
     al::initLayoutActor(this, initInfo, name, 0);
-    initNerve(&nrvMovieTestLayoutDecode, 0);
+    initNerve(&NrvMovieTestLayout.Decode, 0);
 
     mMoviePlayer = static_cast<MoviePlayer*>(al::createSceneObj(this, 0x24));
     mTexture = al::createTextureInfo();
 }
 
 void MovieTestLayout::appear() {
-    al::setNerve(this, &nrvMovieTestLayoutDecode);
+    al::setNerve(this, &NrvMovieTestLayout.Decode);
 
     mMoviePlayer->play("content:/MovieData/old_1.mp4");
 
@@ -46,7 +46,7 @@ void MovieTestLayout::appear() {
 void MovieTestLayout::exeDecode() {
     mMoviePlayer->update();
     if (mMoviePlayer->isDecode()) {
-        al::setNerve(this, &nrvMovieTestLayoutWaitForInput);
+        al::setNerve(this, &NrvMovieTestLayout.WaitForInput);
     }
 }
 
@@ -58,7 +58,7 @@ void MovieTestLayout::exeWaitForInput() {
     //     al::setNerve(this, &nrvMovieTestLayoutWait);
     // }
     if (al::isPadTriggerRight(-1)) {
-        al::setNerve(this, &nrvMovieTestLayoutPlay);
+        al::setNerve(this, &NrvMovieTestLayout.Play);
     }
 }
 

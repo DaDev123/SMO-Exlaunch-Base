@@ -28,9 +28,3 @@ public:
     MoviePlayer* mMoviePlayer;
     nn::ui2d::TextureInfo* mTexture;
 };
-
-namespace {
-NERVE_HEADER(MovieTestLayout, Decode)
-NERVE_HEADER(MovieTestLayout, WaitForInput)
-NERVE_HEADER(MovieTestLayout, Play)
-}  // namespace

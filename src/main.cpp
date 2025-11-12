@@ -3,81 +3,28 @@
 #include "Library/Bgm/BgmLineFunction.h"
 #include "Project/Scene/SceneInitInfo.h"
 #include "Scene/StageScene.h"
+#include "Library/Scene/SceneObjHolder.h"
+#include "Library/Movie/MoviePlayer.h"
 
-HOOK_DEFINE_TRAMPOLINE(StageSceneControlHook) {
+HOOK_DEFINE_TRAMPOLINE(StageSceneInit) {
     static void Callback(StageScene *stageScene, const al::SceneInitInfo& info) {
+        // Call original init first
+        Orig(stageScene, info);
+        
+        // Play video after scene is initialized
+        al::MoviePlayer* player = static_cast<al::MoviePlayer*>(al::getSceneObj(stageScene, 0x24));
+        if (player) {
+            player->play("glitch");
+        }
+        
+        // Stop BGM if playing
         if (al::isPlayingBgm(stageScene)) {
             al::stopAllBgm(stageScene, 0);
         }
-        Orig(stageScene, info);
     }
 };
-
-
-
-
-#include "Library/LiveActor/CreateActorFunction.h"
-
-#include "Scene/ProjectActorFactory.h"
-
-
-
-#include "PuppetActor.h"
-
-
-
-const al::NameToCreator<al::ActorCreatorFunction> sCustomActorFactoryEntries[] = {
-
-    
-
-    {"PuppetActor", al::createActorFunction<PuppetActor>}
-
-};
-
-
-
-HOOK_DEFINE_TRAMPOLINE(ActorFactoryHook) {
-
-    static void Callback(ProjectActorFactory* actorFactory) {
-
-        Orig(actorFactory);
-
-
-
-        s32 customActorEntriesCount = sizeof(sCustomActorFactoryEntries) / sizeof(sCustomActorFactoryEntries[0]);
-
-        al::NameToCreator<al::ActorCreatorFunction>* factoryEntries =
-
-            new al::NameToCreator<al::ActorCreatorFunction>[actorFactory->mNumFactoryEntries + customActorEntriesCount];
-
-
-
-        for (s32 i = 0; i < actorFactory->mNumFactoryEntries; i++) {
-
-            factoryEntries[i] = actorFactory->mFactoryEntries[i];
-
-        }
-
-        for (s32 i = 0; i < customActorEntriesCount; i++) {
-
-            factoryEntries[actorFactory->mNumFactoryEntries + i] = sCustomActorFactoryEntries[i];
-
-        }
-
-
-
-        actorFactory->mFactoryEntries = factoryEntries;
-
-        actorFactory->mNumFactoryEntries += customActorEntriesCount;
-
-    }
-
-};
-
 
 extern "C" void exl_main(void* x0, void* x1) {
-    /* Setup hooking environment. */
     exl::hook::Initialize();
-    StageSceneControlHook::InstallAtSymbol("_ZN10StageScene7controlEv");
-    ActorFactoryHook::InstallAtSymbol("_ZN19ProjectActorFactoryC2Ev");
+    StageSceneInit::InstallAtSymbol("_ZN10StageScene4initERKN2al13SceneInitInfoE");
 }
